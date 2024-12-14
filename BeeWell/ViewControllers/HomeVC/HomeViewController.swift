@@ -16,15 +16,19 @@ class HomeViewController: UIViewController {
     
     lazy var getButton: UIButton = {
         let button = UIButton()
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle("Get a quote.", for: .normal)
+        var config = UIButton.Configuration.filled()
+        config.title = "Get a Quote"
+        config.baseBackgroundColor = .systemYellow
+        config.baseForegroundColor = .black
+        config.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20)
+        config.cornerStyle = .medium
+        button.configuration = config
         button.addTarget(self, action: #selector(getQuote), for: .touchUpInside)
         return button
     }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemYellow
         setupView()
     }
     
