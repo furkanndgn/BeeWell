@@ -12,13 +12,24 @@ class QuoteService: ObservableObject {
     
     private let networkManager = NetworkManager.shared
     private var quoteSubscription: AnyCancellable?
-    @Published var quote: Quote?
+    @Published var randomQuote: Quote?
+    @Published var dailyQuote: Quote?
     
-    func getQuote() {
-        quoteSubscription = networkManager.performRequest()
+    func getRandomQuote() {
+        quoteSubscription = networkManager.performRequest(endpoint: "random")
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: networkManager.handleCompletion, receiveValue: { [weak self] returnedQuotes in
-                self?.quote = returnedQuotes.first
+                self?.randomQuote = returnedQuotes.first
+                self?.quoteSubscription?.cancel()
+            })
+    }
+    
+    func getDailyQuote() {
+        quoteSubscription = networkManager.performRequest(endpoint: "today")
+            .receive(on: DispatchQueue.main)
+            .sink(receiveCompletion: networkManager.handleCompletion, receiveValue: { [weak self] returnedQuotes in
+                self?.randomQuote = returnedQuotes.first
+                print(self?.randomQuote ?? "hehe")
                 self?.quoteSubscription?.cancel()
             })
     }

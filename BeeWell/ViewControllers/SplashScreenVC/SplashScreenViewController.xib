@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="SplashScreenViewController" customModule="BeeWell" customModuleProvider="target">
+            <connections>
+                <outlet property="view" destination="Poo-qt-OM2" id="Fsf-R5-Oue"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="Poo-qt-OM2">
+            <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" image="img" translatesAutoresizingMaskIntoConstraints="NO" id="J5K-4E-wtc">
+                    <rect key="frame" x="-14" y="203.66666666666663" width="421" height="200"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="200" id="Rf7-BG-JVD"/>
+                    </constraints>
+                </imageView>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Welcome To" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FlD-GE-wXD">
+                    <rect key="frame" x="24" y="415.66666666666669" width="345" height="21"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                    <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="BeeWell" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hCX-6Y-Od7">
+                    <rect key="frame" x="24" y="444.66666666666669" width="345" height="48"/>
+                    <fontDescription key="fontDescription" type="system" weight="medium" pointSize="40"/>
+                    <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <nil key="highlightedColor"/>
+                </label>
+            </subviews>
+            <viewLayoutGuide key="safeArea" id="i2v-OE-vsl"/>
+            <color key="backgroundColor" name="AccentColor"/>
+            <constraints>
+                <constraint firstItem="i2v-OE-vsl" firstAttribute="trailing" secondItem="hCX-6Y-Od7" secondAttribute="trailing" constant="24" id="BR7-rx-qMM"/>
+                <constraint firstItem="FlD-GE-wXD" firstAttribute="centerY" secondItem="Poo-qt-OM2" secondAttribute="centerY" id="CA9-gD-ABc"/>
+                <constraint firstItem="i2v-OE-vsl" firstAttribute="trailing" secondItem="FlD-GE-wXD" secondAttribute="trailing" constant="24" id="cVk-Wg-cmX"/>
+                <constraint firstItem="hCX-6Y-Od7" firstAttribute="top" secondItem="FlD-GE-wXD" secondAttribute="bottom" constant="8" id="g0U-2I-kS2"/>
+                <constraint firstItem="hCX-6Y-Od7" firstAttribute="leading" secondItem="i2v-OE-vsl" secondAttribute="leading" constant="24" id="tAT-5H-zFE"/>
+                <constraint firstItem="J5K-4E-wtc" firstAttribute="centerX" secondItem="Poo-qt-OM2" secondAttribute="centerX" id="wP5-sC-FaA"/>
+                <constraint firstItem="FlD-GE-wXD" firstAttribute="leading" secondItem="i2v-OE-vsl" secondAttribute="leading" constant="24" id="wlo-d0-oea"/>
+                <constraint firstItem="FlD-GE-wXD" firstAttribute="top" secondItem="J5K-4E-wtc" secondAttribute="bottom" constant="12" id="xQg-5k-Gz4"/>
+            </constraints>
+            <point key="canvasLocation" x="-68" y="-658"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="img" width="421" height="593"/>
+        <namedColor name="AccentColor">
+            <color red="1" green="0.96470588235294119" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+    </resources>
+</document>

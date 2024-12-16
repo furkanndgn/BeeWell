@@ -16,7 +16,7 @@ class QuoteUIView: UIView {
         label.backgroundColor = .clear
         label.textAlignment = .center
         label.numberOfLines = 0
-        label.text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+        label.text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
         label.font = .preferredFont(forTextStyle: .title2)
         return label
     }()
@@ -53,6 +53,12 @@ class QuoteUIView: UIView {
         setupView()
     }
     
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        gradientLayer.frame = self.bounds
+        gradientLayer.cornerRadius = 24
+    }
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -76,10 +82,9 @@ class QuoteUIView: UIView {
         }
     }
     
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        gradientLayer.frame = self.bounds
-        gradientLayer.cornerRadius = 24
+    func configureCart(for quote: Quote) {
+        quoteLabel.text = quote.quote
+        authorLabel.text = quote.author
     }
 }
 
