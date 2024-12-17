@@ -28,8 +28,7 @@ class QuoteService: ObservableObject {
         quoteSubscription = networkManager.performRequest(endpoint: "today")
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: networkManager.handleCompletion, receiveValue: { [weak self] returnedQuotes in
-                self?.randomQuote = returnedQuotes.first
-                print(self?.randomQuote ?? "hehe")
+                self?.dailyQuote = returnedQuotes.first
                 self?.quoteSubscription?.cancel()
             })
     }

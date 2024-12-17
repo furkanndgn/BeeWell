@@ -15,7 +15,7 @@ class QuoteUIView: UIView {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.backgroundColor = .clear
         label.textAlignment = .center
-        label.numberOfLines = 0
+        label.numberOfLines = 8
         label.text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
         label.font = .preferredFont(forTextStyle: .title2)
         return label

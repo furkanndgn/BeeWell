@@ -60,6 +60,7 @@ class HomeViewController: UIViewController {
             guard let self = self else { return }
             button.layer.borderColor = UIColor.label.resolvedColor(with: self.traitCollection).cgColor
         }
+        button.addTarget(self, action: #selector(addQuoteToFavorites), for: .touchUpInside)
         return button
     }()
     
@@ -77,6 +78,7 @@ class HomeViewController: UIViewController {
             guard let self = self else { return }
             button.layer.borderColor = UIColor.label.resolvedColor(with: self.traitCollection).cgColor
         }
+        button.addTarget(self, action: #selector(pushJournalVC), for: .touchUpInside)
         return button
     }()
     
@@ -93,6 +95,8 @@ class HomeViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
+        addSubscriber()
+        viewModel.addSubscribers()
     }
     
     private func setupView() {
@@ -102,7 +106,6 @@ class HomeViewController: UIViewController {
         }
         titleLabel.text = viewModel.updateGreeting()
         setupConstraints()
-        addSubscriber()
     }
     
     private func setupConstraints() {
@@ -137,14 +140,47 @@ class HomeViewController: UIViewController {
     
     private func addSubscriber() {
         viewModel.$quote
-            .sink { [weak self] recievedQuote in
-                self?.quote = recievedQuote
-                if let quote = recievedQuote {
+            .sink { [weak self] receivedQuote in
+                self?.quote = receivedQuote
+                if let quote = receivedQuote {
                     self?.quoteCart.configureCart(for: quote)
                 }
-                
             }
             .store(in: &viewModel.subscriptions)
+        viewModel.$isFavorited
+            .sink { [weak self] isFavorited in
+                if isFavorited {
+                    self?.favoriteButton.configuration?.image =
+                    UIImage(systemName: "star.fill",
+                            withConfiguration: UIImage.SymbolConfiguration(pointSize: 16, weight: .thin))
+                }
+                else {
+                    self?.favoriteButton.configuration?.image =
+                    UIImage(systemName: "star",
+                            withConfiguration: UIImage.SymbolConfiguration(pointSize: 16, weight: .thin))
+                }
+            }
+            .store(in: &viewModel.subscriptions)
+    }
+    
+    @objc func pushJournalVC(_ sender: UIButton) {
+        if let quote = quote {
+            navigationController?.pushViewController(QuoteJournalViewController(quoteModel: quote), animated: true)
+        }
+    }
+    
+    @objc func addQuoteToFavorites() {
+        if let quote = quote {
+            if !viewModel.isFavorited {
+                viewModel.addQuoteToStorage(quote: quote)
+            } else {
+                viewModel.deleteQuote(quote)
+            }
+        }
+    }
+    
+    @objc func printFetchedResults() {
+        viewModel.fetchQuotesFromStorage()
     }
 }
 

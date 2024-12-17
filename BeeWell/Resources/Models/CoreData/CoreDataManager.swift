@@ -7,20 +7,23 @@
 
 import Foundation
 import CoreData
+import Combine
 
-class CoreDataManager {
-
+class CoreDataManager: ObservableObject {
+    
     static let shared = CoreDataManager()
+    @Published var fetchedQuotes = [Quote]()
     
     lazy var persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "BeeWell")
-        container.loadPersistentStores { _, error in
+        container.loadPersistentStores { storeDescription, error in
             if let error = error as NSError? {
-                fatalError("Unsolved error \(error), \(error.userInfo)")
+                print("Persistent store error: \(error), \(error.userInfo)")
             }
         }
         return container
     }()
+
     
     var context: NSManagedObjectContext {
         persistentContainer.viewContext
@@ -31,50 +34,66 @@ class CoreDataManager {
             do {
                 try context.save()
             } catch let error as NSError {
-                print("Error saving staged changes \(error), \(error.userInfo)")
+                print("Error saving staged changes \(String(describing: error)), \(error.userInfo)")
             }
         }
     }
     
-    func getJournal(from day: String) -> [Journal] {
-        var journals = [Journal]()
-        var fetchRequest: NSFetchRequest<Journal> = Journal.fetchRequest()
-        var predicate = NSPredicate(format: "dateString=%@", day)
-        fetchRequest.predicate = predicate
+//    func getJournal(from day: String) -> [Journal] {
+//        var journals = [Journal]()
+//        let fetchRequest: NSFetchRequest<Journal> = Journal.fetchRequest()
+//        let predicate = NSPredicate(format: "dateString=%@", day)
+//        fetchRequest.predicate = predicate
+//        do {
+//            journals = try context.fetch(fetchRequest)
+//        } catch let error as NSError {
+//            print(error.localizedDescription)
+//        }
+//        return journals
+//    }
+    
+    func getAllQuotes() {
+        let fetchRequest: NSFetchRequest<Quote> = Quote.fetchRequest()
         do {
-            journals = try context.fetch(fetchRequest)
+            
+            fetchedQuotes = try context.fetch(fetchRequest)            
         } catch let error as NSError {
-            print(error.localizedDescription)
+            print(String(describing: error), "on all quotes")
         }
-        return journals
     }
     
-    func getAllQuotes() -> [Quote] {
-        var quotes = [Quote]()
-        var fetchRequest: NSFetchRequest<Quote> = Quote.fetchRequest()
-        do {
-            quotes = try context.fetch(fetchRequest)
-        } catch let error as NSError {
-            print(error.localizedDescription)
-        }
-        return quotes
-    }
-    
-    func addNewJournal(content: String, date: Date, id: UUID, type: String) {
+    func addNewJournal(content: String, dateString: String, id: UUID, quoteID: UUID) {
         let journal = Journal(context: context)
         journal.content = content
-        journal.dateString = date.toDayString()
+        journal.dateString = dateString
         journal.id = id
-        journal.type = type
+        journal.quoteID = quoteID
         saveContext()
     }
     
-    func addNewQuote(content: String, author: String, id: UUID) {
-        let quote = Quote(context: context)
-        quote.content = content
-        quote.author = author
-        quote.id = id
-        saveContext()
+    func addNewQuote(_ quoteModel: QuoteModel) {
+        let isSaved = checkIfAlreadyStored(quoteModel: quoteModel)
+        if !isSaved {
+            let newQuote = Quote(context: context)
+            newQuote.content = quoteModel.quote
+            newQuote.author = quoteModel.author
+            newQuote.id = quoteModel.id
+            saveContext()
+        }
+    }
+    
+    func checkIfAlreadyStored(quoteModel: QuoteModel) -> Bool{
+        let fetchRequest: NSFetchRequest<Quote> = Quote.fetchRequest()
+        let predicate = NSPredicate(format: "content=%@", quoteModel.quote)
+        var isAlreadySaved: Bool = true
+        fetchRequest.predicate = predicate
+        do {
+            let fetchedQuotes = try context.fetch(fetchRequest)
+            isAlreadySaved = !fetchedQuotes.isEmpty
+        } catch let error as NSError {
+            print("Error checking store, \(String(describing: error)), \(error.localizedDescription)")
+        }
+        return isAlreadySaved
     }
     
     func deleteJournal(id: UUID) {
@@ -102,6 +121,18 @@ class CoreDataManager {
             }
         } catch let error as NSError {
             print("Error deleting quote, \(error.userInfo), \(error.localizedDescription)")
+        }
+    }
+    
+    func deleteAllQuotes() {
+        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = Quote.fetchRequest()
+        let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+        do {
+            try context.execute(deleteRequest)
+            saveContext()
+            print("Successfully deleted all quotes.")
+        } catch {
+            print("Error deleting all quotes: \(error.localizedDescription)")
         }
     }
 }
