@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Quote: Codable {
+struct QuoteModel: Codable {
     let quote, author: String
     
     enum CodingKeys: String, CodingKey {

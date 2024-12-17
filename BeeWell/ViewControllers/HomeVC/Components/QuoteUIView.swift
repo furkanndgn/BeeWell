@@ -25,9 +25,9 @@ class QuoteUIView: UIView {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.backgroundColor = .clear
-        label.textAlignment = .right
+        label.textAlignment = .center
         label.numberOfLines = 0
-        label.text = "Furkan"
+        label.text = "— Furkan"
         label.font = .preferredFont(forTextStyle: .footnote)
         return label
     }()
@@ -36,6 +36,7 @@ class QuoteUIView: UIView {
         let stackView = UIStackView(arrangedSubviews: [quoteLabel, authorLabel])
         stackView.axis = .vertical
         stackView.alignment = .fill
+        stackView.spacing = 8
         return stackView
     }()
     
@@ -76,15 +77,14 @@ class QuoteUIView: UIView {
         }
         labelStackView.snp.makeConstraints { make in
             make.center.equalToSuperview()
-            make.leading.equalToSuperview().offset(12)
-            make.trailing.equalToSuperview().offset(-12)
+            make.horizontalEdges.equalToSuperview().inset(12)
             make.height.lessThanOrEqualToSuperview().multipliedBy(0.8)
         }
     }
     
-    func configureCart(for quote: Quote) {
+    func configureCart(for quote: QuoteModel) {
         quoteLabel.text = quote.quote
-        authorLabel.text = quote.author
+        authorLabel.text = "-\(quote.author)"
     }
 }
 

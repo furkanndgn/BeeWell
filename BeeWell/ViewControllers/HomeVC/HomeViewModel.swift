@@ -12,7 +12,7 @@ class HomeViewModel {
     
     let quoteService: QuoteService
     var subscriptions: Set<AnyCancellable>
-    @Published var quote: Quote?
+    @Published var quote: QuoteModel?
     
     init(quoteService: QuoteService = QuoteService(), subscription: Set<AnyCancellable> = Set<AnyCancellable>()) {
         self.quoteService = quoteService

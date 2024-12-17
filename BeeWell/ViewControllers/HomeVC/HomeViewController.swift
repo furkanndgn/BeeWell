@@ -10,9 +10,9 @@ import SnapKit
 import Combine
 
 class HomeViewController: UIViewController {
-
+    
     let viewModel: HomeViewModel
-    @Published var quote: Quote?
+    @Published var quote: QuoteModel?
     
     lazy var titleLabel: UILabel = {
         let label = UILabel()
@@ -29,28 +29,58 @@ class HomeViewController: UIViewController {
         return view
     }()
     
+    lazy var divider = HairlineView()
+    
     lazy var quoteCart: QuoteUIView = {
         let view = QuoteUIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
-    lazy var getButton: UIButton = {
-        let button = UIButton()
+    lazy var buttonStackView: UIStackView = {
+        let stackView = UIStackView(arrangedSubviews: [favoriteButton, writeButton])
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.axis = .horizontal
+        stackView.spacing = 18
+        stackView.alignment = .center
+        return stackView
+    }()
+    
+    lazy var favoriteButton: CircularButton = {
+        let button = CircularButton()
         var config = UIButton.Configuration.filled()
-        config.image = UIImage(systemName: "pencil", withConfiguration: UIImage.SymbolConfiguration(pointSize: 20, weight: .thin))
+        config.image = UIImage(systemName: "star",
+                               withConfiguration: UIImage.SymbolConfiguration(pointSize: 16, weight: .thin))
         config.baseBackgroundColor = .clear
         config.baseForegroundColor = .label
         config.contentInsets = NSDirectionalEdgeInsets(top: 4, leading: 4, bottom: 4, trailing: 4)
-        button.layer.borderColor = UIColor.label.cgColor
-        button.layer.borderWidth = 1
+        button.layer.borderWidth = 0.8
         button.configuration = config
-        button.addTarget(self, action: #selector(getQuote), for: .touchUpInside)
+        button.configurationUpdateHandler = { [weak self] button in
+            guard let self = self else { return }
+            button.layer.borderColor = UIColor.label.resolvedColor(with: self.traitCollection).cgColor
+        }
         return button
     }()
     
+    lazy var writeButton: CircularButton = {
+        let button = CircularButton()
+        var config = UIButton.Configuration.filled()
+        config.image = UIImage(systemName: "pencil",
+                               withConfiguration: UIImage.SymbolConfiguration(pointSize: 16, weight: .thin))
+        config.baseBackgroundColor = .clear
+        config.baseForegroundColor = .label
+        config.contentInsets = NSDirectionalEdgeInsets(top: 4, leading: 4, bottom: 4, trailing: 4)
+        button.layer.borderWidth = 0.8
+        button.configuration = config
+        button.configurationUpdateHandler = { [weak self] button in
+            guard let self = self else { return }
+            button.layer.borderColor = UIColor.label.resolvedColor(with: self.traitCollection).cgColor
+        }
+        return button
+    }()
     
-    init(quote: Quote? = nil, viewModel: HomeViewModel = HomeViewModel()) {
+    init(quote: QuoteModel? = nil, viewModel: HomeViewModel = HomeViewModel()) {
         self.quote = quote
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
@@ -65,14 +95,9 @@ class HomeViewController: UIViewController {
         setupView()
     }
     
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        getButton.layer.cornerRadius = getButton.bounds.width / 2
-    }
-    
     private func setupView() {
         view.backgroundColor = .systemBackground
-        [titleLabel, daysView, quoteCart, getButton].forEach { subView in
+        [titleLabel, daysView, divider, quoteCart, buttonStackView].forEach { subView in
             view.addSubview(subView)
         }
         titleLabel.text = viewModel.updateGreeting()
@@ -83,24 +108,30 @@ class HomeViewController: UIViewController {
     private func setupConstraints() {
         titleLabel.snp.makeConstraints { make in
             make.top.equalTo(view.safeAreaLayoutGuide)
-            make.centerX.equalToSuperview()
+            make.horizontalEdges.equalToSuperview()
         }
         daysView.snp.makeConstraints { make in
-            make.width.equalToSuperview()
+            make.horizontalEdges.equalToSuperview()
             make.height.equalToSuperview().multipliedBy(0.05)
             make.top.equalTo(titleLabel.snp.bottom).offset(12)
-            make.centerX.equalToSuperview()
+        }
+        divider.snp.makeConstraints { make in
+            make.horizontalEdges.equalToSuperview().inset(24)
+            make.top.equalTo(daysView.snp.bottom).offset(8)
         }
         quoteCart.snp.makeConstraints { make in
-            make.centerX.equalToSuperview()
-            make.top.equalTo(daysView.snp.bottom).offset(12)
-            make.leading.equalTo(view.safeAreaInsets).offset(24)
+            make.top.equalTo(divider.snp.bottom).offset(8)
+            make.horizontalEdges.equalToSuperview().inset(24)
         }
-        getButton.snp.makeConstraints { make in
+        favoriteButton.snp.makeConstraints { make in
+            make.height.width.equalTo(40)
+        }
+        writeButton.snp.makeConstraints { make in
+            make.height.width.equalTo(40)
+        }
+        buttonStackView.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
             make.top.equalTo(quoteCart.snp.bottom).offset(12)
-            make.height.equalTo(40)
-            make.width.equalTo(40)
         }
     }
     
@@ -114,12 +145,6 @@ class HomeViewController: UIViewController {
                 
             }
             .store(in: &viewModel.subscriptions)
-    }
-    
-    // MARK: Activation functions
-    @objc
-    func getQuote(_ sender: UIButton) {
-        viewModel.getQuote()
     }
 }
 

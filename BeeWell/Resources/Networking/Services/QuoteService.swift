@@ -12,8 +12,8 @@ class QuoteService: ObservableObject {
     
     private let networkManager = NetworkManager.shared
     private var quoteSubscription: AnyCancellable?
-    @Published var randomQuote: Quote?
-    @Published var dailyQuote: Quote?
+    @Published var randomQuote: QuoteModel?
+    @Published var dailyQuote: QuoteModel?
     
     func getRandomQuote() {
         quoteSubscription = networkManager.performRequest(endpoint: "random")

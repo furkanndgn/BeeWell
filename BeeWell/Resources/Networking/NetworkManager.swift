@@ -13,9 +13,9 @@ class NetworkManager {
     static let shared = NetworkManager()
     private let baseURL: String = "https://zenquotes.io/api"
     
-    func performRequest(endpoint: String) -> AnyPublisher<[Quote], Error> {
+    func performRequest(endpoint: String) -> AnyPublisher<[QuoteModel], Error> {
         request(endPoint: endpoint)
-            .decode(type: [Quote].self, decoder: JSONDecoder())
+            .decode(type: [QuoteModel].self, decoder: JSONDecoder())
             .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
     }
