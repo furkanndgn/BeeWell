@@ -82,6 +82,24 @@ class HomeViewController: UIViewController {
         return button
     }()
     
+    lazy var testButton: CircularButton = {
+        let button = CircularButton()
+        var config = UIButton.Configuration.filled()
+        config.image = UIImage(systemName: "plus",
+                               withConfiguration: UIImage.SymbolConfiguration(pointSize: 16, weight: .thin))
+        config.baseBackgroundColor = .clear
+        config.baseForegroundColor = .label
+        config.contentInsets = NSDirectionalEdgeInsets(top: 4, leading: 4, bottom: 4, trailing: 4)
+        button.layer.borderWidth = 0.8
+        button.configuration = config
+        button.configurationUpdateHandler = { [weak self] button in
+            guard let self = self else { return }
+            button.layer.borderColor = UIColor.label.resolvedColor(with: self.traitCollection).cgColor
+        }
+        button.addTarget(self, action: #selector(printFetchedResults), for: .touchUpInside)
+        return button
+    }()
+    
     init(quote: QuoteModel? = nil, viewModel: HomeViewModel = HomeViewModel()) {
         self.quote = quote
         self.viewModel = viewModel
@@ -99,9 +117,14 @@ class HomeViewController: UIViewController {
         viewModel.addSubscribers()
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        updateView()
+    }
+    
     private func setupView() {
         view.backgroundColor = .systemBackground
-        [titleLabel, daysView, divider, quoteCart, buttonStackView].forEach { subView in
+        [titleLabel, daysView, divider, quoteCart, buttonStackView, testButton].forEach { subView in
             view.addSubview(subView)
         }
         titleLabel.text = viewModel.updateGreeting()
@@ -136,6 +159,16 @@ class HomeViewController: UIViewController {
             make.centerX.equalToSuperview()
             make.top.equalTo(quoteCart.snp.bottom).offset(12)
         }
+        testButton.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.top.equalTo(buttonStackView.snp.bottom).offset(24)
+        }
+    }
+    
+    private func updateView() {
+        if let quote = quote {
+            viewModel.checkIfQuoteFavorited(for: quote)
+        }
     }
     
     private func addSubscriber() {
@@ -153,6 +186,7 @@ class HomeViewController: UIViewController {
                     self?.favoriteButton.configuration?.image =
                     UIImage(systemName: "star.fill",
                             withConfiguration: UIImage.SymbolConfiguration(pointSize: 16, weight: .thin))
+                   
                 }
                 else {
                     self?.favoriteButton.configuration?.image =
@@ -165,14 +199,18 @@ class HomeViewController: UIViewController {
     
     @objc func pushJournalVC(_ sender: UIButton) {
         if let quote = quote {
-            navigationController?.pushViewController(QuoteJournalViewController(quoteModel: quote), animated: true)
+            if quote.journal.isEmpty {
+                navigationController?.pushViewController(JournalEditViewController(quoteModel: quote, isQuoteSaved: viewModel.isFavorited), animated: true)
+            } else {
+                navigationController?.pushViewController(JournalViewController(quoteModel: quote, viewModel: viewModel), animated: true)
+            }
         }
     }
     
     @objc func addQuoteToFavorites() {
         if let quote = quote {
             if !viewModel.isFavorited {
-                viewModel.addQuoteToStorage(quote: quote)
+                viewModel.addQuoteToStorage(quote)
             } else {
                 viewModel.deleteQuote(quote)
             }
@@ -181,6 +219,7 @@ class HomeViewController: UIViewController {
     
     @objc func printFetchedResults() {
         viewModel.fetchQuotesFromStorage()
+//        CoreDataManager.shared.deleteAllQuotes()
     }
 }
 

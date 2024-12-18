@@ -22,7 +22,7 @@ class HomeViewModel: ObservableObject {
         self.subscriptions = subscription
     }
     
-    func addQuoteToStorage(quote: QuoteModel) {
+    func addQuoteToStorage(_ quote: QuoteModel) {
         dataManager.addNewQuote(quote)
         checkIfQuoteFavorited(for: quote)
         fetchQuotesFromStorage()
@@ -34,10 +34,16 @@ class HomeViewModel: ObservableObject {
     
     func checkIfQuoteFavorited(for quote: QuoteModel) {
         isFavorited = dataManager.checkIfAlreadyStored(quoteModel: quote)
+        if isFavorited {
+            let a = dataManager.getQuote(dateString: quote.dateString)
+            let coreQuote = QuoteModel(quote: a!.content!, author: a!.author!, journal: a!.journal!)
+            self.quote = coreQuote
+            print(coreQuote.journal)
+        }
     }
     
     func deleteQuote(_ quote: QuoteModel) {
-        dataManager.deleteQuote(id: quote.id)
+        dataManager.deleteQuote(dateString: quote.dateString)
         checkIfQuoteFavorited(for: quote)
     }
     
@@ -47,7 +53,8 @@ class HomeViewModel: ObservableObject {
         dataManager.$fetchedQuotes
             .sink { [weak self] returnedQuotes in
                 self?.favoriteQuotes = returnedQuotes
-                print(self?.favoriteQuotes ?? "hehe", "burda core data")
+                print(self?.favoriteQuotes ?? "burda core data")
+                print(returnedQuotes.first?.journal ?? "", "journal burda")
             }
             .store(in: &subscriptions)
         quoteService.$dailyQuote

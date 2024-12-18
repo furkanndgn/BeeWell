@@ -10,6 +10,8 @@ import Foundation
 struct QuoteModel: Codable {
     let quote, author: String
     let id = UUID()
+    var journal = ""
+    let dateString = Date().toDayString()
     
     enum CodingKeys: String, CodingKey {
         case quote = "q"

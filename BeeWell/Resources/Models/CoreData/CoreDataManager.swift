@@ -55,20 +55,10 @@ class CoreDataManager: ObservableObject {
     func getAllQuotes() {
         let fetchRequest: NSFetchRequest<Quote> = Quote.fetchRequest()
         do {
-            
             fetchedQuotes = try context.fetch(fetchRequest)            
         } catch let error as NSError {
             print(String(describing: error), "on all quotes")
         }
-    }
-    
-    func addNewJournal(content: String, dateString: String, id: UUID, quoteID: UUID) {
-        let journal = Journal(context: context)
-        journal.content = content
-        journal.dateString = dateString
-        journal.id = id
-        journal.quoteID = quoteID
-        saveContext()
     }
     
     func addNewQuote(_ quoteModel: QuoteModel) {
@@ -78,6 +68,8 @@ class CoreDataManager: ObservableObject {
             newQuote.content = quoteModel.quote
             newQuote.author = quoteModel.author
             newQuote.id = quoteModel.id
+            newQuote.journal = quoteModel.journal
+            newQuote.dateString = quoteModel.dateString
             saveContext()
         }
     }
@@ -96,26 +88,32 @@ class CoreDataManager: ObservableObject {
         return isAlreadySaved
     }
     
-    func deleteJournal(id: UUID) {
-        let fetchRequest: NSFetchRequest<Journal> = Journal.fetchRequest()
-        let predicate = NSPredicate(format: "id=%@", id.uuidString)
+    func getQuote(dateString: String) -> Quote? {
+        var quote: Quote?
+        let fetchRequest: NSFetchRequest<Quote> = Quote.fetchRequest()
+        let predicate = NSPredicate(format: "dateString==%@", dateString)
         fetchRequest.predicate = predicate
         do {
-            if let fetchedJournal = try context.fetch(fetchRequest).first(where: { $0.id == id }) {
-                context.delete(fetchedJournal)
-                saveContext()
-            }
+            quote = try context.fetch(fetchRequest).first(where: { $0.dateString == dateString })
         } catch let error as NSError {
-            print("Error deleting journal, \(error.userInfo), \(error.localizedDescription)")
+            print("Error fetching quote, \(String(describing: error))")
         }
+        return quote
     }
     
-    func deleteQuote(id: UUID) {
+    func updateJournal(quoteModel: QuoteModel) {
+        let quote = getQuote(dateString: quoteModel.dateString)
+        guard quote != nil else { return }
+        quote!.journal = quoteModel.journal
+        saveContext()
+    }
+        
+    func deleteQuote(dateString: String) {
         let fetchRequest: NSFetchRequest<Quote> = Quote.fetchRequest()
-        let predicate = NSPredicate(format: "id=%@", id.uuidString)
+        let predicate = NSPredicate(format: "dateString==%@", dateString)
         fetchRequest.predicate = predicate
         do {
-            if let fetchedQuote = try context.fetch(fetchRequest).first(where: { $0.id == id }) {
+            if let fetchedQuote = try context.fetch(fetchRequest).first(where: { $0.dateString == dateString }) {
                 context.delete(fetchedQuote)
                 saveContext()
             }
