@@ -8,6 +8,7 @@
 import UIKit
 import SnapKit
 import Combine
+import CoreData
 
 class HomeViewController: UIViewController {
     
@@ -85,8 +86,7 @@ class HomeViewController: UIViewController {
     lazy var testButton: CircularButton = {
         let button = CircularButton()
         var config = UIButton.Configuration.filled()
-        config.image = UIImage(systemName: "plus",
-                               withConfiguration: UIImage.SymbolConfiguration(pointSize: 16, weight: .thin))
+        config.title = "test"
         config.baseBackgroundColor = .clear
         config.baseForegroundColor = .label
         config.contentInsets = NSDirectionalEdgeInsets(top: 4, leading: 4, bottom: 4, trailing: 4)
@@ -96,7 +96,7 @@ class HomeViewController: UIViewController {
             guard let self = self else { return }
             button.layer.borderColor = UIColor.label.resolvedColor(with: self.traitCollection).cgColor
         }
-        button.addTarget(self, action: #selector(printFetchedResults), for: .touchUpInside)
+        button.addTarget(self, action: #selector(testFunction), for: .touchUpInside)
         return button
     }()
     
@@ -115,6 +115,7 @@ class HomeViewController: UIViewController {
         setupView()
         addSubscriber()
         viewModel.addSubscribers()
+        viewModel.getDailyQuote()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -160,6 +161,7 @@ class HomeViewController: UIViewController {
             make.top.equalTo(quoteCart.snp.bottom).offset(12)
         }
         testButton.snp.makeConstraints { make in
+            make.height.width.equalTo(40)
             make.centerX.equalToSuperview()
             make.top.equalTo(buttonStackView.snp.bottom).offset(24)
         }
@@ -199,27 +201,26 @@ class HomeViewController: UIViewController {
     
     @objc func pushJournalVC(_ sender: UIButton) {
         if let quote = quote {
-            if quote.journal.isEmpty {
-                navigationController?.pushViewController(JournalEditViewController(quoteModel: quote, isQuoteSaved: viewModel.isFavorited), animated: true)
-            } else {
-                navigationController?.pushViewController(JournalViewController(quoteModel: quote, viewModel: viewModel), animated: true)
-            }
+            navigationController?.pushViewController(JournalViewController(quoteModel: quote, viewModel: viewModel),
+                                                     animated: true)
         }
     }
     
     @objc func addQuoteToFavorites() {
+        print(Calendar.current.startOfDay(for: Date()))
         if let quote = quote {
             if !viewModel.isFavorited {
                 viewModel.addQuoteToStorage(quote)
             } else {
                 viewModel.deleteQuote(quote)
             }
+            updateView()
         }
     }
     
-    @objc func printFetchedResults() {
-        viewModel.fetchQuotesFromStorage()
-//        CoreDataManager.shared.deleteAllQuotes()
+    @objc func testFunction() {
+        navigationController?.pushViewController(QuotesListViewController(), animated: true)
+//        CoreDataManager.shared.deleteFavoriteQuotes()
     }
 }
 

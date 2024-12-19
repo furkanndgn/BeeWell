@@ -11,11 +11,12 @@ import Combine
 
 class JournalViewController: UIViewController {
     
+    let dataManager = CoreDataManager.shared
     var quoteModel: QuoteModel
     let viewModel: HomeViewModel
     
     lazy var editButton: UIBarButtonItem = {
-        let button = UIBarButtonItem(barButtonSystemItem: .edit, target: self, action: #selector(editJournal))
+        let button = UIBarButtonItem(title: "Edit", style: .plain, target: self, action: #selector(toggleEditMode))
         button.isEnabled = true
         return button
     }()
@@ -34,7 +35,7 @@ class JournalViewController: UIViewController {
     lazy var quoteLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = quoteModel.quote
+        label.text = quoteModel.body
         label.numberOfLines = 0
         label.textAlignment = .left
         label.font = .systemFont(ofSize: 20)
@@ -55,13 +56,38 @@ class JournalViewController: UIViewController {
     
     lazy var journalTextView: UITextView = {
         let textView = UITextView()
+        textView.delegate = self
         textView.font = UIFont.systemFont(ofSize: 16)
-        textView.textColor = .label
-        textView.text = quoteModel.journal
+        if quoteModel.journal.isEmpty {
+            textView.text = "Start writing your thoughts..."
+            textView.textColor = .secondaryLabel
+        } else {
+            textView.text = quoteModel.journal
+            textView.textColor = .label
+        }
         textView.backgroundColor = .systemBackground
         textView.layer.cornerRadius = 8
         textView.isEditable = false
+        textView.inputAccessoryView = toolbar
         return textView
+    }()
+    
+    lazy var toolbar: UIToolbar = {
+        let bar = UIToolbar()
+        bar.translatesAutoresizingMaskIntoConstraints = false
+        bar.sizeToFit()
+        bar.setItems([flexibleSpace, doneButton], animated: true)
+        return bar
+    }()
+    
+    lazy var doneButton: UIBarButtonItem = {
+        let button = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(doneButtonTapped))
+        return button
+    }()
+    
+    lazy var flexibleSpace: UIBarButtonItem = {
+        let space = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        return space
     }()
     
     init(quoteModel: QuoteModel, viewModel: HomeViewModel) {
@@ -78,12 +104,6 @@ class JournalViewController: UIViewController {
         super.viewDidLoad()
         setupView()
         addSubscribers()
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        viewModel.checkIfQuoteFavorited(for: quoteModel)
-        journalTextView.text = quoteModel.journal
     }
     
     private func setupView() {
@@ -115,6 +135,10 @@ class JournalViewController: UIViewController {
         }
     }
     
+    private func saveNewJournal() {
+        dataManager.updateJournal(for: quoteModel)
+    }
+    
     private func addSubscribers() {
         viewModel.$quote
             .sink { [weak self] receivedQuote in
@@ -126,12 +150,34 @@ class JournalViewController: UIViewController {
     }
     
     //    MARK: Activation Functions
-    @objc private func editJournal() {
-        navigationController?.pushViewController(JournalEditViewController(quoteModel: quoteModel, isQuoteSaved: true), animated: false)
+    @objc private func toggleEditMode() {
+        journalTextView.isEditable.toggle()
+        if journalTextView.isEditable {
+            editButton.title = "Done"
+        } else {
+            quoteModel.journal = journalTextView.text
+            saveNewJournal()
+            editButton.title = "Edit"
+        }
+    }
+    
+    @objc private func doneButtonTapped() {
+        journalTextView.resignFirstResponder()
     }
 }
-//
-//#Preview {
-//    let quote = QuoteModel(quote: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.", author: "Furkan", journal: "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?")
-//    JournalViewController(quoteModel: quote)
-//}
+
+extension JournalViewController: UITextViewDelegate {
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        if quoteModel.journal.isEmpty {
+            textView.text = ""
+            textView.textColor = .label // Switch to text color
+        }
+    }
+
+    func textViewDidEndEditing(_ textView: UITextView) {
+        if textView.text.isEmpty {
+            textView.text = "Start writing your thoughts..."
+            textView.textColor = .secondaryLabel
+        }
+    }
+}

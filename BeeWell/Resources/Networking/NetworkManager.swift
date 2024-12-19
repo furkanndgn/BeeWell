@@ -11,17 +11,17 @@ import Combine
 class NetworkManager {
     
     static let shared = NetworkManager()
-    private let baseURL: String = "https://zenquotes.io/api"
+    private let baseURL: String = "https://zenquotes.io/api/today"
     
-    func performRequest(endpoint: String) -> AnyPublisher<[QuoteModel], Error> {
-        request(endPoint: endpoint)
+    func performRequest() -> AnyPublisher<[QuoteModel], Error> {
+        request()
             .decode(type: [QuoteModel].self, decoder: JSONDecoder())
             .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
     }
     
-    private func request(endPoint: String) -> AnyPublisher<Data, Error> {
-        guard let url = URL(string: "\(baseURL)/\(endPoint)") else {
+    private func request() -> AnyPublisher<Data, Error> {
+        guard let url = URL(string: baseURL) else {
             return Fail(error: NetworkError.invalidURL).eraseToAnyPublisher()
         }
         var request = URLRequest(url: url)

@@ -14,7 +14,6 @@ class HomeViewModel: ObservableObject {
     let dataManager = CoreDataManager.shared
     var subscriptions: Set<AnyCancellable>
     @Published var quote: QuoteModel?
-    @Published var favoriteQuotes = [Quote]()
     @Published var isFavorited = false
     
     init(quoteService: QuoteService = QuoteService(), subscription: Set<AnyCancellable> = Set<AnyCancellable>()) {
@@ -23,45 +22,39 @@ class HomeViewModel: ObservableObject {
     }
     
     func addQuoteToStorage(_ quote: QuoteModel) {
-        dataManager.addNewQuote(quote)
-        checkIfQuoteFavorited(for: quote)
-        fetchQuotesFromStorage()
-    }
-    
-    func fetchQuotesFromStorage() {
-        dataManager.getAllQuotes()
+        dataManager.addToFavorites(quote)
     }
     
     func checkIfQuoteFavorited(for quote: QuoteModel) {
-        isFavorited = dataManager.checkIfAlreadyStored(quoteModel: quote)
+        isFavorited = dataManager.checkIfFavorited(quote)
         if isFavorited {
-            let a = dataManager.getQuote(dateString: quote.dateString)
-            let coreQuote = QuoteModel(quote: a!.content!, author: a!.author!, journal: a!.journal!)
-            self.quote = coreQuote
-            print(coreQuote.journal)
+            if let quote = dataManager.getQuoteFromFavorites(id: quote.id) {
+                let quoteModel = QuoteModel(quote: quote)
+                self.quote = quoteModel
+                print(quoteModel.journal)
+            }
+        }
+    }
+    
+    func getDailyQuote() {
+        if let  quoteOfTheDay = dataManager.fetchQuoteOfTheDay(date: Date()) {
+            quote = QuoteModel(quoteOfTheDay: quoteOfTheDay)
+        } else {
+            quoteService.getDailyQuote()
         }
     }
     
     func deleteQuote(_ quote: QuoteModel) {
-        dataManager.deleteQuote(dateString: quote.dateString)
-        checkIfQuoteFavorited(for: quote)
+        dataManager.deleteQuoteFromFavorites(id: quote.id)
+        self.quote?.journal = ""
     }
     
-     func addSubscribers() {
-        quoteService.getDailyQuote()
-
-        dataManager.$fetchedQuotes
-            .sink { [weak self] returnedQuotes in
-                self?.favoriteQuotes = returnedQuotes
-                print(self?.favoriteQuotes ?? "burda core data")
-                print(returnedQuotes.first?.journal ?? "", "journal burda")
-            }
-            .store(in: &subscriptions)
+    func addSubscribers() {
         quoteService.$dailyQuote
-            .sink { [weak self] receivedQuote in
-                self?.quote = receivedQuote
-                if let quote = receivedQuote {
-                    self?.checkIfQuoteFavorited(for: quote)
+            .sink { [weak self] dailyQuote in
+                self?.quote = dailyQuote
+                if let quote = dailyQuote {
+                    self?.dataManager.addQuoteOfTheDay(quote)
                 }
             }
             .store(in: &subscriptions)

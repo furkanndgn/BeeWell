@@ -83,7 +83,7 @@ class QuoteUIView: UIView {
     }
     
     func configureCart(for quote: QuoteModel) {
-        quoteLabel.text = quote.quote
+        quoteLabel.text = quote.body
         authorLabel.text = "-\(quote.author)"
     }
 }

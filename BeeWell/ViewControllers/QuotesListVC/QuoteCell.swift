@@ -33,6 +33,7 @@ class QuoteCell: UITableViewCell {
     
     private func setupView() {
         contentView.addSubview(quoteLabel)
+        setupConstraints()
     }
     
     private func setupConstraints() {
@@ -41,8 +42,8 @@ class QuoteCell: UITableViewCell {
         }
     }
     
-    func configureCell(with quoteListModel: QuoteListModel) {
-        quoteLabel.text = quoteListModel.content
+    func configureCell(with quoteModel: QuoteModel) {
+        quoteLabel.text = quoteModel.body
     }
 }
 
