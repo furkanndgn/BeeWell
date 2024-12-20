@@ -16,7 +16,6 @@ class QuotesListViewController: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.estimatedRowHeight = 100
         tableView.register(QuoteCell.self, forCellReuseIdentifier: QuoteCell.identifier)
         return tableView
     }()
@@ -35,6 +34,11 @@ class QuotesListViewController: UIViewController {
         viewModel.addSubscribers()
         viewModel.getQuotes()
         setupView()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        viewModel.getQuotes()
     }
     
     private func setupView() {
@@ -67,5 +71,14 @@ extension QuotesListViewController: UITableViewDelegate, UITableViewDataSource {
         return cell
     }
     
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 72
+    }
     
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        let quote = viewModel.quote(by: indexPath.row)
+        let journalVC = JournalViewController(quoteModel: quote)
+        navigationController?.pushViewController(journalVC, animated: true)
+    }
 }

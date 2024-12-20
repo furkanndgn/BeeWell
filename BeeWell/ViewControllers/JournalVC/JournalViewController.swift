@@ -13,7 +13,7 @@ class JournalViewController: UIViewController {
     
     let dataManager = CoreDataManager.shared
     var quoteModel: QuoteModel
-    let viewModel: HomeViewModel
+    let placeHolder: String = "Start writing your thoughts..."
     
     lazy var editButton: UIBarButtonItem = {
         let button = UIBarButtonItem(title: "Edit", style: .plain, target: self, action: #selector(toggleEditMode))
@@ -59,7 +59,7 @@ class JournalViewController: UIViewController {
         textView.delegate = self
         textView.font = UIFont.systemFont(ofSize: 16)
         if quoteModel.journal.isEmpty {
-            textView.text = "Start writing your thoughts..."
+            textView.text = placeHolder
             textView.textColor = .secondaryLabel
         } else {
             textView.text = quoteModel.journal
@@ -73,8 +73,7 @@ class JournalViewController: UIViewController {
     }()
     
     lazy var toolbar: UIToolbar = {
-        let bar = UIToolbar()
-        bar.translatesAutoresizingMaskIntoConstraints = false
+        let bar = UIToolbar(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 44))
         bar.sizeToFit()
         bar.setItems([flexibleSpace, doneButton], animated: true)
         return bar
@@ -90,9 +89,8 @@ class JournalViewController: UIViewController {
         return space
     }()
     
-    init(quoteModel: QuoteModel, viewModel: HomeViewModel) {
+    init(quoteModel: QuoteModel) {
         self.quoteModel = quoteModel
-        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -103,7 +101,6 @@ class JournalViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
-        addSubscribers()
     }
     
     private func setupView() {
@@ -139,30 +136,22 @@ class JournalViewController: UIViewController {
         dataManager.updateJournal(for: quoteModel)
     }
     
-    private func addSubscribers() {
-        viewModel.$quote
-            .sink { [weak self] receivedQuote in
-                if let quote = receivedQuote {
-                    self?.quoteModel = quote
-                }
-            }
-            .store(in: &viewModel.subscriptions)
-    }
-    
     //    MARK: Activation Functions
     @objc private func toggleEditMode() {
         journalTextView.isEditable.toggle()
         if journalTextView.isEditable {
             editButton.title = "Done"
         } else {
-            quoteModel.journal = journalTextView.text
+            if journalTextView.text != placeHolder {
+                quoteModel.journal = journalTextView.text
+            }
             saveNewJournal()
             editButton.title = "Edit"
         }
     }
     
     @objc private func doneButtonTapped() {
-        journalTextView.resignFirstResponder()
+        journalTextView.endEditing(true)
     }
 }
 
@@ -176,7 +165,8 @@ extension JournalViewController: UITextViewDelegate {
 
     func textViewDidEndEditing(_ textView: UITextView) {
         if textView.text.isEmpty {
-            textView.text = "Start writing your thoughts..."
+            quoteModel.journal = ""
+            textView.text = placeHolder
             textView.textColor = .secondaryLabel
         }
     }

@@ -73,7 +73,6 @@ class QuoteUIView: UIView {
     private func setupConstraints() {
         self.snp.makeConstraints { make in
             make.height.equalTo(300)
-            make.width.equalTo(300)
         }
         labelStackView.snp.makeConstraints { make in
             make.center.equalToSuperview()

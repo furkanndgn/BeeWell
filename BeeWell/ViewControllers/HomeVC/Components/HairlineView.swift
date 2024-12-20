@@ -11,16 +11,14 @@ class HairlineView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        
-        self.layer.backgroundColor = UIColor.darkGray.cgColor
+        self.layer.backgroundColor = UIColor.systemGray.cgColor
         self.translatesAutoresizingMaskIntoConstraints = false
-     
         setupConstraints()
     }
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            self.heightAnchor.constraint(equalToConstant: 1 / UIScreen.main.scale)
+            self.heightAnchor.constraint(equalToConstant: 1)
         ])
     }
     

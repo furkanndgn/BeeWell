@@ -31,7 +31,6 @@ class HomeViewModel: ObservableObject {
             if let quote = dataManager.getQuoteFromFavorites(id: quote.id) {
                 let quoteModel = QuoteModel(quote: quote)
                 self.quote = quoteModel
-                print(quoteModel.journal)
             }
         }
     }

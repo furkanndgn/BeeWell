@@ -144,10 +144,10 @@ class HomeViewController: UIViewController {
         }
         divider.snp.makeConstraints { make in
             make.horizontalEdges.equalToSuperview().inset(24)
-            make.top.equalTo(daysView.snp.bottom).offset(8)
+            make.top.equalTo(daysView.snp.bottom).offset(12)
         }
         quoteCart.snp.makeConstraints { make in
-            make.top.equalTo(divider.snp.bottom).offset(8)
+            make.top.equalTo(divider.snp.bottom).offset(12)
             make.horizontalEdges.equalToSuperview().inset(24)
         }
         favoriteButton.snp.makeConstraints { make in
@@ -201,13 +201,12 @@ class HomeViewController: UIViewController {
     
     @objc func pushJournalVC(_ sender: UIButton) {
         if let quote = quote {
-            navigationController?.pushViewController(JournalViewController(quoteModel: quote, viewModel: viewModel),
+            navigationController?.pushViewController(JournalViewController(quoteModel: quote),
                                                      animated: true)
         }
     }
     
     @objc func addQuoteToFavorites() {
-        print(Calendar.current.startOfDay(for: Date()))
         if let quote = quote {
             if !viewModel.isFavorited {
                 viewModel.addQuoteToStorage(quote)

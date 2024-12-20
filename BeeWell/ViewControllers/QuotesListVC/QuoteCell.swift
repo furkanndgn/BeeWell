@@ -16,13 +16,21 @@ class QuoteCell: UITableViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 14)
+        label.numberOfLines = 3
         label.text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+        return label
+    }()
+    
+    lazy var dateLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = .systemFont(ofSize: 12)
+        label.numberOfLines = 1
         return label
     }()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        
         setupView()
     }
     
@@ -32,18 +40,26 @@ class QuoteCell: UITableViewCell {
     }
     
     private func setupView() {
+        self.accessoryType = .disclosureIndicator
         contentView.addSubview(quoteLabel)
+        contentView.addSubview(dateLabel)
         setupConstraints()
     }
     
     private func setupConstraints() {
         quoteLabel.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(12)
+            make.horizontalEdges.equalToSuperview().inset(12)
+            make.top.equalToSuperview().offset(8)
+        }
+        dateLabel.snp.makeConstraints { make in
+            make.horizontalEdges.equalTo(quoteLabel)
+            make.bottom.equalToSuperview().inset(8)
         }
     }
     
     func configureCell(with quoteModel: QuoteModel) {
         quoteLabel.text = quoteModel.body
+        dateLabel.text = quoteModel.dateString
     }
 }
 
