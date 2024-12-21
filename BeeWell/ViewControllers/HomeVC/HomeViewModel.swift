@@ -36,8 +36,9 @@ class HomeViewModel: ObservableObject {
     }
     
     func getDailyQuote() {
-        if let  quoteOfTheDay = dataManager.fetchQuoteOfTheDay(date: Date()) {
+        if let  quoteOfTheDay = dataManager.fetchQuoteOfTheDay(date: Date().toCSTTime()) {
             quote = QuoteModel(quoteOfTheDay: quoteOfTheDay)
+            dataManager.fetchQuoteOfThe7Days()
         } else {
             quoteService.getDailyQuote()
         }
@@ -45,6 +46,7 @@ class HomeViewModel: ObservableObject {
     
     func deleteQuote(_ quote: QuoteModel) {
         dataManager.deleteQuoteFromFavorites(id: quote.id)
+        dataManager.getFavoriteQuotes()
         self.quote?.journal = ""
     }
     

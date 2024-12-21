@@ -13,4 +13,12 @@ extension Date {
         formatter.dateFormat = "dd-MM-yyyy"
         return formatter.string(from: self)
     }
+    
+    func toCSTTime() -> Date {
+        return self.addingTimeInterval(-21600)
+    }
+    
+    func toUTC3Time() -> Date {
+        return self.addingTimeInterval(21600)
+    }
 }

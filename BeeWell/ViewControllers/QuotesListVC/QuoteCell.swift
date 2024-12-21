@@ -59,7 +59,7 @@ class QuoteCell: UITableViewCell {
     
     func configureCell(with quoteModel: QuoteModel) {
         quoteLabel.text = quoteModel.body
-        dateLabel.text = quoteModel.dateString
+        dateLabel.text = quoteModel.date.toUTC3Time().formatted(date: .abbreviated, time: .omitted)
     }
 }
 

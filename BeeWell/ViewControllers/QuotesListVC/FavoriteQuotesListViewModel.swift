@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 
-class QuotesListViewModel: ObservableObject {
+class FavoriteQuotesListViewModel: ObservableObject {
     
     let dataManager = CoreDataManager.shared
     var subscriptions: Set<AnyCancellable>

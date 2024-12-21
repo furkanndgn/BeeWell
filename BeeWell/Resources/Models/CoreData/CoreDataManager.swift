@@ -43,7 +43,7 @@ class CoreDataManager: ObservableObject {
     func getFavoriteQuotes() {
         let fetchRequest: NSFetchRequest<Quote> = Quote.fetchRequest()
         do {
-            favoriteQuotes = try context.fetch(fetchRequest)            
+            favoriteQuotes = try context.fetch(fetchRequest)
         } catch let error as NSError {
             print(String(describing: error), "on all quotes")
         }
@@ -57,7 +57,7 @@ class CoreDataManager: ObservableObject {
             newQuote.author = quoteModel.author
             newQuote.id = quoteModel.id
             newQuote.journal = quoteModel.journal
-            newQuote.dateString = quoteModel.dateString
+            newQuote.date = quoteModel.date
             saveContext()
         }
     }
@@ -131,7 +131,7 @@ class CoreDataManager: ObservableObject {
         quoteOfTheDay.id = quote.id
         quoteOfTheDay.author = quote.author
         quoteOfTheDay.body = quote.body
-        quoteOfTheDay.date = calendar.startOfDay(for: Date())
+        quoteOfTheDay.date = calendar.startOfDay(for: Date().toCSTTime())
         saveContext()
     }
     
@@ -149,7 +149,7 @@ class CoreDataManager: ObservableObject {
     }
     
     func maintainQuoteLimitToSeven() {
-        let sevenDaysAgo = calendar.date(byAdding: .day,value: -7, to: calendar.startOfDay(for: Date()))
+        let sevenDaysAgo = calendar.date(byAdding: .day,value: -7, to: calendar.startOfDay(for: Date().toCSTTime()))
         let fetchRequest: NSFetchRequest<NSFetchRequestResult> = QuoteOfTheDay.fetchRequest()
         let predicate = NSPredicate(format: "date<%@", sevenDaysAgo! as NSDate)
         fetchRequest.predicate = predicate
@@ -160,6 +160,30 @@ class CoreDataManager: ObservableObject {
             print("Deleted excess quotes.")
         } catch let error as NSError {
             print("Error deleting excess error, \(error.localizedDescription)")
+        }
+    }
+    
+//    MARK: For development purposes
+    func fetchQuoteOfThe7Days() {
+        let fetchRequest: NSFetchRequest<QuoteOfTheDay> = QuoteOfTheDay.fetchRequest()
+        do {
+            let quotes = try context.fetch(fetchRequest)
+            quotes.forEach { quote in
+                print("\(String(describing: quote.body)), \(String(describing: quote.date))")
+            }
+        } catch let error as NSError {
+            print("Error fetching last 7 days QOTD. \(error.userInfo), \(error.localizedDescription)")
+        }
+    }
+    
+    func deleteStoredQuoteOfTheDays() {
+        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = QuoteOfTheDay.fetchRequest()
+        let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+        do {
+            try context.execute(deleteRequest)
+            saveContext()
+        } catch let error as NSError {
+            print("Error deleting all QOTDs. \(error.userInfo), \(error.localizedDescription)")
         }
     }
 }

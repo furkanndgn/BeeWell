@@ -11,7 +11,7 @@ struct QuoteModel: Codable {
     
     let id: UUID
     let author, body: String
-    let dateString: String
+    let date: Date
     var journal: String
     
     init(quote: Quote) {
@@ -19,14 +19,14 @@ struct QuoteModel: Codable {
         self.author = quote.author ?? ""
         self.id = quote.id ?? UUID()
         self.journal = quote.journal ?? ""
-        self.dateString = quote.dateString ?? Date().toDayString()
+        self.date = quote.date ?? Calendar.current.startOfDay(for: Date())
     }
     
     init(quoteOfTheDay: QuoteOfTheDay) {
         self.body = quoteOfTheDay.body ?? ""
         self.author = quoteOfTheDay.author ?? ""
         self.id = quoteOfTheDay.id ?? UUID()
-        self.dateString = quoteOfTheDay.date?.toDayString() ?? Date().toDayString()
+        self.date = quoteOfTheDay.date ?? Calendar.current.startOfDay(for: Date())
         self.journal = ""
     }
     
@@ -36,7 +36,7 @@ struct QuoteModel: Codable {
         self.author = try container.decode(String.self, forKey: .author)
         self.id = UUID()
         self.journal = ""
-        self.dateString = Date().toDayString()
+        self.date = Calendar.current.startOfDay(for: Date())
     }
     // init for previews and mock data
     init(quote: String, author: String) {
@@ -44,7 +44,7 @@ struct QuoteModel: Codable {
         self.author = author
         self.id = UUID()
         self.journal = ""
-        self.dateString = Date().toDayString()
+        self.date = Calendar.current.startOfDay(for: Date())
     }
     
     enum CodingKeys: String, CodingKey {

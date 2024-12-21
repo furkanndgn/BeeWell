@@ -110,11 +110,6 @@ class HomeViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    override func viewWillLayoutSubviews() {
-        viewModel.addSubscribers()
-        viewModel.getDailyQuote()
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
@@ -214,7 +209,7 @@ class HomeViewController: UIViewController {
             .store(in: &viewModel.subscriptions)
     }
     
-    @objc func pushJournalVC(_ sender: UIButton) {
+    @objc func pushJournalVC() {
         if let quote = quote {
             navigationController?.pushViewController(JournalViewController(quoteModel: quote),
                                                      animated: true)
@@ -233,7 +228,7 @@ class HomeViewController: UIViewController {
     }
     
     @objc func testFunction() {
-        navigationController?.pushViewController(QuotesListViewController(), animated: true)
+        navigationController?.pushViewController(FavoriteQuotesListViewController(), animated: true)
 //        CoreDataManager.shared.deleteFavoriteQuotes()
     }
 }

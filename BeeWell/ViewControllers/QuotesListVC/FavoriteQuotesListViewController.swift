@@ -7,9 +7,9 @@
 
 import UIKit
 
-class QuotesListViewController: UIViewController {
+class FavoriteQuotesListViewController: UIViewController {
     
-    let viewModel: QuotesListViewModel
+    let viewModel: FavoriteQuotesListViewModel
     
     lazy var quotesTableView: UITableView = {
         let tableView = UITableView()
@@ -20,7 +20,7 @@ class QuotesListViewController: UIViewController {
         return tableView
     }()
     
-    init(viewModel: QuotesListViewModel = QuotesListViewModel()) {
+    init(viewModel: FavoriteQuotesListViewModel = FavoriteQuotesListViewModel()) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
@@ -36,11 +36,12 @@ class QuotesListViewController: UIViewController {
         setupView()
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         viewModel.getQuotes()
+        quotesTableView.reloadData()
     }
-    
+        
     private func setupView() {
         view.backgroundColor = .systemBackground
         view.addSubview(quotesTableView)
@@ -56,7 +57,7 @@ class QuotesListViewController: UIViewController {
     }
 }
 
-extension QuotesListViewController: UITableViewDelegate, UITableViewDataSource {
+extension FavoriteQuotesListViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         viewModel.getQuoteCount()
     }
@@ -88,5 +89,9 @@ extension QuotesListViewController: UITableViewDelegate, UITableViewDataSource {
         let quote = viewModel.quote(by: indexPath.row)
         viewModel.removeFromFavorites(quote)
         tableView.reloadData()
+    }
+    
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return "Hehehe"
     }
 }
