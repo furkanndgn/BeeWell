@@ -110,6 +110,11 @@ class HomeViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    override func viewWillLayoutSubviews() {
+        viewModel.addSubscribers()
+        viewModel.getDailyQuote()
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
@@ -123,6 +128,16 @@ class HomeViewController: UIViewController {
         updateView()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: true)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        navigationController?.setNavigationBarHidden(false, animated: true)
+    }
+    
     private func setupView() {
         view.backgroundColor = .systemBackground
         [titleLabel, daysView, divider, quoteCart, buttonStackView, testButton].forEach { subView in
@@ -134,12 +149,12 @@ class HomeViewController: UIViewController {
     
     private func setupConstraints() {
         titleLabel.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide)
+            make.top.equalTo(view.snp_topMargin)
             make.horizontalEdges.equalToSuperview()
         }
         daysView.snp.makeConstraints { make in
             make.horizontalEdges.equalToSuperview()
-            make.height.equalToSuperview().multipliedBy(0.05)
+            make.height.equalToSuperview().multipliedBy(0.06)
             make.top.equalTo(titleLabel.snp.bottom).offset(12)
         }
         divider.snp.makeConstraints { make in

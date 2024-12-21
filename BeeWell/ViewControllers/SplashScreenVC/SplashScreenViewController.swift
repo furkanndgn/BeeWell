@@ -9,8 +9,6 @@ import UIKit
 
 class SplashScreenViewController: UIViewController {
 
-  
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -30,8 +28,8 @@ class SplashScreenViewController: UIViewController {
             transition.type = .fade
             transition.duration = 0.3
             window.layer.add(transition, forKey: kCATransition)
-            let homeScreen = UINavigationController(rootViewController: HomeViewController())
-            window.rootViewController = homeScreen
+            let tabBarController = MainTabBarController()
+            window.rootViewController = tabBarController
             window.makeKeyAndVisible()
         }
     }

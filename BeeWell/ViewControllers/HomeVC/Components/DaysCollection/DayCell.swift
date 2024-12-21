@@ -10,13 +10,14 @@ import UIKit
 class DayCell: UICollectionViewCell {
     
     static let identifier = "DayCell"
+    var isToday: Bool = false
     
     lazy var dayLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .center
         label.font = .preferredFont(forTextStyle: .caption2)
-        label.textColor = .label
+        label.textColor = .secondaryLabel
         return label
     }()
     
@@ -38,8 +39,17 @@ class DayCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        if isToday {
+            setupBorder()
+        }
+    }
+    
     private func setupView() {
-        contentView.backgroundColor = .secondarySystemBackground
+        contentView.layer.borderWidth = 0.2
+        contentView.layer.borderColor = UIColor.clear.cgColor
+        contentView.backgroundColor = .clear
         contentView.layer.cornerRadius = 8
         contentView.addSubview(dateLabel)
         contentView.addSubview(dayLabel)
@@ -57,9 +67,26 @@ class DayCell: UICollectionViewCell {
         }
     }
     
-    func configure(with dayTuple: (day: String, date: String)) {
+    func configure(with dayTuple: (day: String, date: String), isToday: Bool) {
         dayLabel.text = String(dayTuple.day.prefix(2))
         dateLabel.text = dayTuple.date
+        self.isToday = isToday
+        if isToday {
+            dayLabel.textColor = .label
+            dateLabel.textColor = .label
+        }
+    }
+    
+    private func setupBorder() {
+        let borderColor = UIColor { traitCollection in
+            switch traitCollection.userInterfaceStyle {
+            case .dark:
+                return UIColor.secondaryLabel
+            default :
+                return UIColor.secondaryLabel
+            }
+        }.cgColor
+        contentView.layer.borderColor = borderColor
     }
 }
 

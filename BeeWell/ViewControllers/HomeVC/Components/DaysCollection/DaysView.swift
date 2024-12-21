@@ -77,7 +77,7 @@ extension DaysView: UICollectionViewDataSource, UICollectionViewDelegate, UIColl
                 as? DayCell else {
             return UICollectionViewCell()
         }
-        cell.configure(with: days[indexPath.item])
+        cell.configure(with: days[indexPath.item], isToday: (indexPath.item == days.endIndex - 1))
         return cell
     }
     

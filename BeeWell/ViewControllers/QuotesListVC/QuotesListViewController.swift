@@ -81,4 +81,12 @@ extension QuotesListViewController: UITableViewDelegate, UITableViewDataSource {
         let journalVC = JournalViewController(quoteModel: quote)
         navigationController?.pushViewController(journalVC, animated: true)
     }
+    
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        guard editingStyle == .delete else { return }
+        
+        let quote = viewModel.quote(by: indexPath.row)
+        viewModel.removeFromFavorites(quote)
+        tableView.reloadData()
+    }
 }

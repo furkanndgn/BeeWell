@@ -31,6 +31,11 @@ class QuotesListViewModel: ObservableObject {
         return allQuotes[index]
     }
     
+    func removeFromFavorites(_ quote: QuoteModel) {
+        dataManager.deleteQuoteFromFavorites(id: quote.id)
+        getQuotes()
+    }
+    
     func addSubscribers() {
         dataManager.$favoriteQuotes
             .sink { [weak self] receivedQuotes in
