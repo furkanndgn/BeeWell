@@ -118,14 +118,10 @@ class HomeViewController: UIViewController {
         viewModel.getDailyQuote()
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        updateView()
-    }
-    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(true, animated: true)
+        updateView()
     }
     
     override func viewWillDisappear(_ animated: Bool) {

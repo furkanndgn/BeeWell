@@ -11,7 +11,7 @@ import Combine
 
 class JournalViewController: UIViewController {
     
-    let dataManager = CoreDataManager.shared
+    let dataManager: FavoriteQuotesRepository
     var quoteModel: QuoteModel
     let placeHolder: String = "Start writing your thoughts..."
     
@@ -89,8 +89,9 @@ class JournalViewController: UIViewController {
         return space
     }()
     
-    init(quoteModel: QuoteModel) {
+    init(quoteModel: QuoteModel, dataManager: FavoriteQuotesRepository = CoreDataManager.shared) {
         self.quoteModel = quoteModel
+        self.dataManager = dataManager
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -133,7 +134,7 @@ class JournalViewController: UIViewController {
     }
     
     private func saveNewJournal() {
-        dataManager.updateJournal(for: quoteModel)
+        dataManager.updateJournal(of: quoteModel)
     }
     
     //    MARK: Activation Functions

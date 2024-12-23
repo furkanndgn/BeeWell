@@ -31,7 +31,6 @@ class FavoriteQuotesListViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        viewModel.addSubscribers()
         viewModel.getQuotes()
         setupView()
     }

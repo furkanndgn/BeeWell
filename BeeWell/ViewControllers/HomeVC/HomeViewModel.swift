@@ -11,12 +11,14 @@ import Combine
 class HomeViewModel: ObservableObject {
     
     let quoteService: QuoteService
-    let dataManager = CoreDataManager.shared
+    let dataManager: HomeScreenQuotesRepository
     var subscriptions: Set<AnyCancellable>
     @Published var quote: QuoteModel?
     @Published var isFavorited = false
     
-    init(quoteService: QuoteService = QuoteService(), subscription: Set<AnyCancellable> = Set<AnyCancellable>()) {
+    init(quoteService: QuoteService = QuoteService(), subscription: Set<AnyCancellable> = Set<AnyCancellable>(),
+         dataManager: HomeScreenQuotesRepository = CoreDataManager.shared) {
+        self.dataManager = dataManager
         self.quoteService = quoteService
         self.subscriptions = subscription
     }
@@ -26,27 +28,24 @@ class HomeViewModel: ObservableObject {
     }
     
     func checkIfQuoteFavorited(for quote: QuoteModel) {
-        isFavorited = dataManager.checkIfFavorited(quote)
+        isFavorited = dataManager.checkIfQuoteFavorited(for: quote)
         if isFavorited {
-            if let quote = dataManager.getQuoteFromFavorites(id: quote.id) {
-                let quoteModel = QuoteModel(quote: quote)
-                self.quote = quoteModel
+            if let quote = dataManager.getQuoteFromFavorites(with: quote.id) {
+                self.quote = quote
             }
         }
     }
     
     func getDailyQuote() {
-        if let  quoteOfTheDay = dataManager.fetchQuoteOfTheDay(date: Date().toCSTTime()) {
-            quote = QuoteModel(quoteOfTheDay: quoteOfTheDay)
-            dataManager.fetchQuoteOfThe7Days()
+        if let  quoteOfTheDay = dataManager.getQuoteOfTheDay(for: Date().toCSTTime()) {
+            quote = quoteOfTheDay
         } else {
             quoteService.getDailyQuote()
         }
     }
     
     func deleteQuote(_ quote: QuoteModel) {
-        dataManager.deleteQuoteFromFavorites(id: quote.id)
-        dataManager.getFavoriteQuotes()
+        dataManager.removeFromFavorites(quote)
         self.quote?.journal = ""
     }
     
@@ -55,7 +54,7 @@ class HomeViewModel: ObservableObject {
             .sink { [weak self] dailyQuote in
                 self?.quote = dailyQuote
                 if let quote = dailyQuote {
-                    self?.dataManager.addQuoteOfTheDay(quote)
+                    self?.dataManager.saveQuoteOfTheDay(quote)
                 }
             }
             .store(in: &subscriptions)

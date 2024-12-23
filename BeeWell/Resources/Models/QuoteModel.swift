@@ -38,6 +38,7 @@ struct QuoteModel: Codable {
         self.journal = ""
         self.date = Calendar.current.startOfDay(for: Date())
     }
+    
     // init for previews and mock data
     init(quote: String, author: String) {
         self.body = quote

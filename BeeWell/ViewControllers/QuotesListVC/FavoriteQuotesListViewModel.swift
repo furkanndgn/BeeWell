@@ -10,38 +10,31 @@ import Combine
 
 class FavoriteQuotesListViewModel: ObservableObject {
     
-    let dataManager = CoreDataManager.shared
+    let dataManager: FavoriteQuotesRepository
     var subscriptions: Set<AnyCancellable>
-    @Published var allQuotes = [QuoteModel]()
+    @Published var favoriteQuotes = [QuoteModel]()
     @Published var quoteCount: Int = 0
     
-    init(subscription: Set<AnyCancellable> = Set<AnyCancellable>()) {
+    init(subscription: Set<AnyCancellable> = Set<AnyCancellable>(),
+         dataManager: FavoriteQuotesRepository = CoreDataManager.shared) {
+        self.dataManager = dataManager
         self.subscriptions = subscription
     }
     
     func getQuotes() {
-        dataManager.getFavoriteQuotes()
+        favoriteQuotes = dataManager.getAllFavoriteQuotes()
     }
     
     func getQuoteCount() -> Int{
-        return allQuotes.count
+        return favoriteQuotes.count
     }
     
     func quote(by index: Int) -> QuoteModel {
-        return allQuotes[index]
+        return favoriteQuotes[index]
     }
     
     func removeFromFavorites(_ quote: QuoteModel) {
-        dataManager.deleteQuoteFromFavorites(id: quote.id)
+        dataManager.removeFromFavorites(quote)
         getQuotes()
-    }
-    
-    func addSubscribers() {
-        dataManager.$favoriteQuotes
-            .sink { [weak self] receivedQuotes in
-                self?.allQuotes = receivedQuotes.map(QuoteModel.init)
-                self?.quoteCount = receivedQuotes.count
-            }
-            .store(in: &subscriptions)
     }
 }
