@@ -39,6 +39,7 @@ class FavoriteQuotesListViewController: UIViewController {
         super.viewWillAppear(animated)
         viewModel.getQuotes()
         quotesTableView.reloadData()
+        print(quotesTableView.numberOfSections)
     }
         
     private func setupView() {
@@ -58,7 +59,7 @@ class FavoriteQuotesListViewController: UIViewController {
 
 extension FavoriteQuotesListViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        viewModel.getQuoteCount()
+        return viewModel.getQuoteCount()
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -93,4 +94,9 @@ extension FavoriteQuotesListViewController: UITableViewDelegate, UITableViewData
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         return "Hehehe"
     }
+}
+
+#Preview {
+    let vm = FavoriteQuotesListViewModel(dataManager: MockFavoriteQuotesRepository())
+    FavoriteQuotesListViewController(viewModel: vm)
 }

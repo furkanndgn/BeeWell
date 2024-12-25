@@ -40,12 +40,12 @@ struct QuoteModel: Codable {
     }
     
     // init for previews and mock data
-    init(quote: String, author: String) {
-        self.body = quote
+    init(body: String, author: String, date: Date = Date()) {
+        self.body = body
         self.author = author
         self.id = UUID()
         self.journal = ""
-        self.date = Calendar.current.startOfDay(for: Date())
+        self.date = Calendar.current.startOfDay(for: date)
     }
     
     enum CodingKeys: String, CodingKey {
