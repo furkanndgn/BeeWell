@@ -9,17 +9,19 @@ import Foundation
 
 class FavoriteQuotesListViewModel {
     
-    let dataManager: FavoriteQuotesRepository
+    private let dataManager: FavoriteQuotesRepository
     private var favoriteQuotes = [QuoteModel]()
-    var groupedQuotes = [QuotesSection]()
-    var quoteCount: Int = 0
+    private var groupedQuotes = [QuotesSection]()
+    private var quoteCount: Int = 0
+    var years: [Int] = []
+    var selectedYear: Int?
     
     init(dataManager: FavoriteQuotesRepository = CoreDataManager.shared) {
         self.dataManager = dataManager
     }
     
     func getQuotes() {
-        favoriteQuotes = dataManager.getFavoriteQuotesOfYear(for: 2024)
+        favoriteQuotes = dataManager.getFavoriteQuotesOfYear(for: 2025)
         groupedQuotes = groupQuotesByWeek(favoriteQuotes)
     }
     
@@ -46,6 +48,12 @@ class FavoriteQuotesListViewModel {
     func removeFromFavorites(_ quote: QuoteModel) {
         dataManager.removeFromFavorites(quote)
         getQuotes()
+    }
+    
+    func setupYears() {
+        let currentYear = Calendar.current.component(.year, from: Date())
+        years = Array(currentYear - 10...currentYear).sorted(by: { $0 > $1 })
+        selectedYear = currentYear
     }
     
     private func groupQuotesByWeek(_ quotes: [QuoteModel]) -> [QuotesSection] {

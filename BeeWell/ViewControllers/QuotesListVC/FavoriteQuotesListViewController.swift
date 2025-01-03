@@ -11,6 +11,33 @@ class FavoriteQuotesListViewController: UIViewController {
     
     let viewModel: FavoriteQuotesListViewModel
     
+    let tempClosure = { (action: UIAction) in }
+    
+    lazy var yearSelectionButton: UIButton = {
+        var config = UIButton.Configuration.plain()
+        config.indicator = .none
+        config.image = UIImage(systemName: "chevron.down")
+        config.imagePlacement = .trailing
+        let button = UIButton(configuration: config)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        var children: [UIAction] = {
+            var array = [UIAction]()
+            let currentYear = Calendar.current.component(.year, from: Date())
+            viewModel.years.forEach { year in
+                if year == currentYear {
+                    array.append(UIAction(title: "\(year)", state: .on, handler: tempClosure))
+                } else {
+                    array.append(UIAction(title: "\(year)", handler: tempClosure))
+                }
+            }
+            return array
+        }()
+        button.menu = UIMenu(children: children)
+        button.changesSelectionAsPrimaryAction = true
+        button.showsMenuAsPrimaryAction = true
+        return button
+    }()
+    
     lazy var quotesTableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -28,7 +55,7 @@ class FavoriteQuotesListViewController: UIViewController {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         viewModel.getQuotes()
@@ -42,22 +69,29 @@ class FavoriteQuotesListViewController: UIViewController {
     }
         
     private func setupView() {
+        viewModel.setupYears()
         view.backgroundColor = .systemBackground
+        view.addSubview(yearSelectionButton)
         view.addSubview(quotesTableView)
         setupConstraints()
     }
     
     private func setupConstraints() {
-        quotesTableView.snp.makeConstraints { make in
+        yearSelectionButton.snp.makeConstraints { make in
             make.top.equalTo(view.safeAreaLayoutGuide)
+            make.centerX.equalToSuperview()
+            make.width.equalTo(view.snp.width).multipliedBy(0.25)
+        }
+        quotesTableView.snp.makeConstraints { make in
+            make.top.equalTo(yearSelectionButton.snp.bottom)
             make.bottom.equalTo(view.safeAreaLayoutGuide)
             make.horizontalEdges.equalToSuperview()
         }
     }
 }
 
-extension FavoriteQuotesListViewController: UITableViewDelegate, UITableViewDataSource {
-    
+extension FavoriteQuotesListViewController: UITableViewDelegate, UITableViewDataSource,
+                                                UIPickerViewDelegate, UIPickerViewDataSource {
     func numberOfSections(in tableView: UITableView) -> Int {
         return viewModel.getSectionCount()
     }
@@ -102,6 +136,18 @@ extension FavoriteQuotesListViewController: UITableViewDelegate, UITableViewData
             return (weekYear.week, weekYear.year)
         }()
         return "Week \(week) of \(year)."
+    }
+    
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        1
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        viewModel.years.count
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return "\(viewModel.years[row])"
     }
 }
 
