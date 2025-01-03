@@ -10,7 +10,15 @@ import Foundation
 class MockFavoriteQuotesRepository: FavoriteQuotesRepository {
     
     var favoriteQuotes: [QuoteModel] = [
-        QuoteModel(body: "hoop. hoop. hoop.", author: "furkido", date: Date().advanced(by: -86400)),
+        QuoteModel(body:
+                    """
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt 
+                    ut labore et dolore magna aliqua. Ut enim ad      
+                    minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. 
+                    Duis aute irure dolor in reprehenderit in voluptate velit 
+                    esse cillum dolore eu fugiat nulla pariatur.
+                    """,
+                   author: "furkido", date: Date().advanced(by: -86400)),
         QuoteModel(body: "hallederiz anam", author: "kokito", date: Date().advanced(by: -86400 * 2)),
         QuoteModel(body: "zink. zink. zink", author: "furki", date: Date().advanced(by: -86400 * 3)),
         QuoteModel(body: "ozr dlrm", author: "o", date: Date().advanced(by: -86400 * 4)),
@@ -19,6 +27,10 @@ class MockFavoriteQuotesRepository: FavoriteQuotesRepository {
     
     func getAllFavoriteQuotes() -> [QuoteModel] {
         return favoriteQuotes
+    }
+    
+    func getFavoriteQuotesOfYear(for year: Int) -> [QuoteModel] {
+        return []
     }
     
     func getQuoteFromFavorites(with id: UUID) -> QuoteModel? {

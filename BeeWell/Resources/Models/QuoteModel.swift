@@ -8,7 +8,6 @@
 import Foundation
 
 struct QuoteModel: Codable {
-    
     let id: UUID
     let author, body: String
     let date: Date

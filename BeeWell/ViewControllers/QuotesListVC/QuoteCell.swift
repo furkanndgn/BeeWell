@@ -16,7 +16,7 @@ class QuoteCell: UITableViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 14)
-        label.numberOfLines = 3
+        label.numberOfLines = 1
         label.text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
         return label
     }()
@@ -53,7 +53,7 @@ class QuoteCell: UITableViewCell {
         }
         dateLabel.snp.makeConstraints { make in
             make.horizontalEdges.equalTo(quoteLabel)
-            make.bottom.equalToSuperview().inset(8)
+            make.bottom.equalToSuperview().inset(12)
         }
     }
     

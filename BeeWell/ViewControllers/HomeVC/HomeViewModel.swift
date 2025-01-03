@@ -12,7 +12,7 @@ class HomeViewModel: ObservableObject {
     
     let quoteService: QuoteService
     let dataManager: HomeScreenQuotesRepository
-    var subscriptions: Set<AnyCancellable>
+    var cancellables: Set<AnyCancellable>
     @Published var quote: QuoteModel?
     @Published var isFavorited = false
     
@@ -20,7 +20,7 @@ class HomeViewModel: ObservableObject {
          dataManager: HomeScreenQuotesRepository = CoreDataManager.shared) {
         self.dataManager = dataManager
         self.quoteService = quoteService
-        self.subscriptions = subscription
+        self.cancellables = subscription
     }
     
     func addQuoteToStorage(_ quote: QuoteModel) {
@@ -57,7 +57,7 @@ class HomeViewModel: ObservableObject {
                     self?.dataManager.saveQuoteOfTheDay(quote)
                 }
             }
-            .store(in: &subscriptions)
+            .store(in: &cancellables)
     }
     
     func updateGreeting() -> String{

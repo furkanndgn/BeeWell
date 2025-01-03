@@ -11,15 +11,15 @@ import Combine
 class QuoteService {
     
     private let networkManager = NetworkManager.shared
-    private var quoteSubscription: AnyCancellable?
+    private var cancellables: AnyCancellable?
     @Published var dailyQuote: QuoteModel?
     
     func getDailyQuote() {
-        quoteSubscription = networkManager.performRequest()
+        cancellables = networkManager.performRequest()
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: networkManager.handleCompletion, receiveValue: { [weak self] returnedQuotes in
                 self?.dailyQuote = returnedQuotes.first
-                self?.quoteSubscription?.cancel()
+                self?.cancellables?.cancel()
             })
     }
 }

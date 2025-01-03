@@ -39,7 +39,6 @@ class FavoriteQuotesListViewController: UIViewController {
         super.viewWillAppear(animated)
         viewModel.getQuotes()
         quotesTableView.reloadData()
-        print(quotesTableView.numberOfSections)
     }
         
     private func setupView() {
@@ -58,8 +57,13 @@ class FavoriteQuotesListViewController: UIViewController {
 }
 
 extension FavoriteQuotesListViewController: UITableViewDelegate, UITableViewDataSource {
+    
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return viewModel.getSectionCount()
+    }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.getQuoteCount()
+        return viewModel.getRowCountFor(section: section)
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -67,32 +71,37 @@ extension FavoriteQuotesListViewController: UITableViewDelegate, UITableViewData
                                                              for: indexPath) as? QuoteCell else {
             return UITableViewCell()
         }
-        let quote = viewModel.quote(by: indexPath.row)
+        let quote = viewModel.getQuote(by: indexPath.row)
         cell.configureCell(with: quote)
         return cell
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 72
+        return 68
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let quote = viewModel.quote(by: indexPath.row)
+        let quote = viewModel.getQuote(by: indexPath.row)
         let journalVC = JournalViewController(quoteModel: quote)
         navigationController?.pushViewController(journalVC, animated: true)
     }
     
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle,
+                   forRowAt indexPath: IndexPath) {
         guard editingStyle == .delete else { return }
         
-        let quote = viewModel.quote(by: indexPath.row)
+        let quote = viewModel.getQuote(by: indexPath.row)
         viewModel.removeFromFavorites(quote)
         tableView.reloadData()
     }
     
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        return "Hehehe"
+        let (week, year) = {
+            let weekYear = viewModel.getWeekYear(section: section)
+            return (weekYear.week, weekYear.year)
+        }()
+        return "Week \(week) of \(year)."
     }
 }
 

@@ -187,7 +187,7 @@ class HomeViewController: UIViewController {
                     self?.quoteCart.configureCart(for: quote)
                 }
             }
-            .store(in: &viewModel.subscriptions)
+            .store(in: &viewModel.cancellables)
         viewModel.$isFavorited
             .sink { [weak self] isFavorited in
                 if isFavorited {
@@ -202,7 +202,7 @@ class HomeViewController: UIViewController {
                             withConfiguration: UIImage.SymbolConfiguration(pointSize: 16, weight: .thin))
                 }
             }
-            .store(in: &viewModel.subscriptions)
+            .store(in: &viewModel.cancellables)
     }
     
     @objc func pushJournalVC() {

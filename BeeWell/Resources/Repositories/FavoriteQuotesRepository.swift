@@ -14,6 +14,8 @@ protocol FavoriteQuotesRepository {
     
     func getAllFavoriteQuotes() -> [QuoteModel]
     
+    func getFavoriteQuotesOfYear(for year: Int) -> [QuoteModel]
+    
     func getQuoteFromFavorites(with id: UUID) -> QuoteModel?
     
     func addToFavorites(_ quoteModel: QuoteModel)

@@ -49,6 +49,20 @@ class CoreDataManager: HomeScreenQuotesRepository {
         return favoriteQuotes
     }
     
+    func getFavoriteQuotesOfYear(for year: Int) -> [QuoteModel] {
+        let startDate = calendar.date(from: DateComponents(year: year, month: 1, day: 1))! as NSDate
+        let endDate = calendar.date(from: DateComponents(year: year, month: 12, day: 31))! as NSDate
+        let fetchRequest: NSFetchRequest<Quote> = Quote.fetchRequest()
+        let predicate = NSPredicate(format: "date >= %@ and date <= %@", startDate, endDate)
+        fetchRequest.predicate = predicate
+        do {
+            favoriteQuotes = try context.fetch(fetchRequest).map(QuoteModel.init)
+        } catch let error as NSError {
+            print(String(describing: error), "fetching favorite quotes of year.")
+        }
+        return favoriteQuotes
+    }
+    
     func addToFavorites(_ quoteModel: QuoteModel) {
         let isSaved = checkIfQuoteFavorited(for: quoteModel)
         if !isSaved {
@@ -79,7 +93,7 @@ class CoreDataManager: HomeScreenQuotesRepository {
     func getQuoteFromFavorites(with id: UUID) -> QuoteModel? {
         var quote: Quote?
         let fetchRequest: NSFetchRequest<Quote> = Quote.fetchRequest()
-        let predicate = NSPredicate(format: "id==%@", id.uuidString)
+        let predicate = NSPredicate(format: "id == %@", id.uuidString)
         fetchRequest.predicate = predicate
         do {
             quote = try context.fetch(fetchRequest).first(where: { $0.id == id })
@@ -103,7 +117,7 @@ class CoreDataManager: HomeScreenQuotesRepository {
         
     func removeFromFavorites(_ quoteModel: QuoteModel) {
         let fetchRequest: NSFetchRequest<Quote> = Quote.fetchRequest()
-        let predicate = NSPredicate(format: "id==%@", quoteModel.id.uuidString)
+        let predicate = NSPredicate(format: "id == %@", quoteModel.id.uuidString)
         fetchRequest.predicate = predicate
         if let fetchedQuote = fetchQuote(with: quoteModel.id) {
             context.delete(fetchedQuote)
@@ -127,7 +141,7 @@ class CoreDataManager: HomeScreenQuotesRepository {
     private func fetchQuote(with id: UUID) -> Quote? {
         var quote: Quote?
         let fetchRequest: NSFetchRequest<Quote> = Quote.fetchRequest()
-        let predicate = NSPredicate(format: "id==%@", id.uuidString)
+        let predicate = NSPredicate(format: "id == %@", id.uuidString)
         fetchRequest.predicate = predicate
         do {
             quote = try context.fetch(fetchRequest).first(where: { $0.id == id })
@@ -152,7 +166,7 @@ class CoreDataManager: HomeScreenQuotesRepository {
     func getQuoteOfTheDay(for date: Date) -> QuoteModel? {
         var quote: QuoteOfTheDay? = nil
         let fetchRequest: NSFetchRequest<QuoteOfTheDay> = QuoteOfTheDay.fetchRequest()
-        let predicate = NSPredicate(format: "date==%@", calendar.startOfDay(for: date) as NSDate)
+        let predicate = NSPredicate(format: "date == %@", calendar.startOfDay(for: date) as NSDate)
         fetchRequest.predicate = predicate
         do {
             quote = try context.fetch(fetchRequest).first(where: { $0.date ==  calendar.startOfDay(for: date)})
@@ -165,7 +179,7 @@ class CoreDataManager: HomeScreenQuotesRepository {
     func maintainQuoteLimit() {
         let sevenDaysAgo = calendar.date(byAdding: .day,value: -7, to: calendar.startOfDay(for: Date().toCSTTime()))
         let fetchRequest: NSFetchRequest<NSFetchRequestResult> = QuoteOfTheDay.fetchRequest()
-        let predicate = NSPredicate(format: "date<%@", sevenDaysAgo! as NSDate)
+        let predicate = NSPredicate(format: "date < %@", sevenDaysAgo! as NSDate)
         fetchRequest.predicate = predicate
         let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
         do {
