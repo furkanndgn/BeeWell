@@ -11,8 +11,6 @@ class FavoriteQuotesListViewController: UIViewController {
     
     let viewModel: FavoriteQuotesListViewModel
     
-    let tempClosure = { (action: UIAction) in }
-    
     lazy var yearSelectionButton: UIButton = {
         var config = UIButton.Configuration.plain()
         config.indicator = .none
@@ -22,12 +20,11 @@ class FavoriteQuotesListViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         var children: [UIAction] = {
             var array = [UIAction]()
-            let currentYear = Calendar.current.component(.year, from: Date())
             viewModel.years.forEach { year in
-                if year == currentYear {
-                    array.append(UIAction(title: "\(year)", state: .on, handler: tempClosure))
+                if year == FavoriteQuotesListViewModel.currentYear {
+                    array.append(UIAction(title: "\(year)", state: .on, handler: updateYear))
                 } else {
-                    array.append(UIAction(title: "\(year)", handler: tempClosure))
+                    array.append(UIAction(title: "\(year)", handler: updateYear))
                 }
             }
             return array
@@ -38,12 +35,15 @@ class FavoriteQuotesListViewController: UIViewController {
         return button
     }()
     
+    lazy var emptyState = EmptyStateView()
+    
     lazy var quotesTableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.dataSource = self
         tableView.register(QuoteCell.self, forCellReuseIdentifier: QuoteCell.identifier)
+        tableView.backgroundView = emptyState
         return tableView
     }()
     
@@ -58,13 +58,13 @@ class FavoriteQuotesListViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        viewModel.getQuotes()
+        viewModel.getQuotesFor()
         setupView()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        viewModel.getQuotes()
+        viewModel.getQuotesFor(year: viewModel.selectedYear)
         quotesTableView.reloadData()
     }
         
@@ -73,6 +73,8 @@ class FavoriteQuotesListViewController: UIViewController {
         view.backgroundColor = .systemBackground
         view.addSubview(yearSelectionButton)
         view.addSubview(quotesTableView)
+        emptyState.configureView(year: viewModel.selectedYear)
+        updateEmptyStateOpacity()
         setupConstraints()
     }
     
@@ -87,6 +89,23 @@ class FavoriteQuotesListViewController: UIViewController {
             make.bottom.equalTo(view.safeAreaLayoutGuide)
             make.horizontalEdges.equalToSuperview()
         }
+    }
+    
+    private func updateEmptyStateOpacity() {
+        if viewModel.getSectionCount() == 0 {
+            emptyState.isHidden = false
+        } else {
+            emptyState.isHidden = true
+        }
+    }
+    
+//    MARK: ActivationFunctions
+    private func updateYear(sender: UIAction) {
+        viewModel.selectedYear = Int(sender.title)
+        viewModel.getQuotesFor(year: viewModel.selectedYear)
+        emptyState.configureView(year: viewModel.selectedYear)
+        updateEmptyStateOpacity()
+        quotesTableView.reloadData()
     }
 }
 
@@ -135,7 +154,7 @@ extension FavoriteQuotesListViewController: UITableViewDelegate, UITableViewData
             let weekYear = viewModel.getWeekYear(section: section)
             return (weekYear.week, weekYear.year)
         }()
-        return "Week \(week) of \(year)."
+        return "Week \(week) of \(year)"
     }
     
     func numberOfComponents(in pickerView: UIPickerView) -> Int {

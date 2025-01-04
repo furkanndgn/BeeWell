@@ -13,6 +13,7 @@ class FavoriteQuotesListViewModel {
     private var favoriteQuotes = [QuoteModel]()
     private var groupedQuotes = [QuotesSection]()
     private var quoteCount: Int = 0
+    static let currentYear = Calendar.current.component(.year, from: Date())
     var years: [Int] = []
     var selectedYear: Int?
     
@@ -20,8 +21,8 @@ class FavoriteQuotesListViewModel {
         self.dataManager = dataManager
     }
     
-    func getQuotes() {
-        favoriteQuotes = dataManager.getFavoriteQuotesOfYear(for: 2025)
+    func getQuotesFor(year: Int? = currentYear) {
+        favoriteQuotes = dataManager.getFavoriteQuotesOfYear(for: year!)
         groupedQuotes = groupQuotesByWeek(favoriteQuotes)
     }
     
@@ -47,7 +48,7 @@ class FavoriteQuotesListViewModel {
     
     func removeFromFavorites(_ quote: QuoteModel) {
         dataManager.removeFromFavorites(quote)
-        getQuotes()
+        getQuotesFor(year: selectedYear)
     }
     
     func setupYears() {
