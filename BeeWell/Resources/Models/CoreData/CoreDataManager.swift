@@ -185,7 +185,6 @@ class CoreDataManager: HomeScreenQuotesRepository {
         do {
             try context.execute(deleteRequest)
             saveContext()
-            print("Deleted excess quotes.")
         } catch let error as NSError {
             print("Error deleting excess error, \(error.localizedDescription)")
         }

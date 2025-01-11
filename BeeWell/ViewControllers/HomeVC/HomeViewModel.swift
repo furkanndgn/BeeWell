@@ -9,9 +9,27 @@ import Foundation
 import Combine
 
 class HomeViewModel: ObservableObject {
+        
+    let days: [(day: String, date: String)] = {
+        var days: [(day: String, date: String)] = []
+        let today = Date()
+        let dayFormatter = DateFormatter()
+        dayFormatter.dateFormat = "EE"
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "dd"
+        for offset in stride(from: 6, to: -1, by: -1) {
+            if let date = Calendar.current.date(byAdding: .day, value: -offset, to: today) {
+                let day = dayFormatter.string(from: date)
+                let dateString = dateFormatter.string(from: date)
+                days.append((day: day, date: dateString))
+            }
+        }
+        return days
+    }()
     
     let quoteService: QuoteService
-    let dataManager: HomeScreenQuotesRepository
+    private let dataManager: HomeScreenQuotesRepository
+    let calendar = Calendar.current
     var cancellables: Set<AnyCancellable>
     @Published var quote: QuoteModel?
     @Published var isFavorited = false
@@ -44,6 +62,20 @@ class HomeViewModel: ObservableObject {
         }
     }
     
+    func getQuoteOfTheDay(for day: String) {
+        let last7Dates = Date().getDatesOf7Days()
+        for i in 0...6 {
+            if (Int(day) == calendar.component(.day, from: last7Dates[i])) {
+                quote = dataManager.getQuoteOfTheDay(for: last7Dates[i])
+            }
+        }
+//        dataManager.getQuoteOfTheDay(for: )
+    }
+    
+    func maintainLimitForCachedQuotes() {
+        dataManager.maintainQuoteLimit()
+    }
+    
     func deleteQuote(_ quote: QuoteModel) {
         dataManager.removeFromFavorites(quote)
         self.quote?.journal = ""
@@ -58,21 +90,5 @@ class HomeViewModel: ObservableObject {
                 }
             }
             .store(in: &cancellables)
-    }
-    
-    func updateGreeting() -> String{
-        let currentHour = Calendar.current.component(.hour, from: Date())
-        var greeting: String = ""
-        switch currentHour {
-        case 5..<12:
-            greeting = "good morning."
-        case 12..<18:
-            greeting = "good afternoon."
-        case 18..<22:
-            greeting = "good evening."
-        default:
-            greeting = "good night."
-        }
-        return greeting
     }
 }

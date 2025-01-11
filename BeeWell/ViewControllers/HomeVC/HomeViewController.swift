@@ -25,7 +25,7 @@ class HomeViewController: UIViewController {
     }()
     
     lazy var daysView: DaysView = {
-        let view = DaysView()
+        let view = DaysView(delegate: self, dataSource: self)
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -116,6 +116,7 @@ class HomeViewController: UIViewController {
         addSubscriber()
         viewModel.addSubscribers()
         viewModel.getDailyQuote()
+        viewModel.maintainLimitForCachedQuotes()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -134,7 +135,7 @@ class HomeViewController: UIViewController {
         [titleLabel, daysView, divider, quoteCart, buttonStackView, testButton].forEach { subView in
             view.addSubview(subView)
         }
-        titleLabel.text = viewModel.updateGreeting()
+        titleLabel.text = updateGreeting()
         setupConstraints()
     }
     
@@ -179,6 +180,28 @@ class HomeViewController: UIViewController {
         }
     }
     
+    private func updateUI(for day: String) {
+        viewModel.getQuoteOfTheDay(for: day)
+        quoteCart.authorLabel.text = quote?.author
+        quoteCart.quoteLabel.text = quote?.body
+    }
+    
+    private func updateGreeting() -> String{
+        let currentHour = Calendar.current.component(.hour, from: Date())
+        var greeting: String = ""
+        switch currentHour {
+        case 5..<12:
+            greeting = "good morning."
+        case 12..<18:
+            greeting = "good afternoon."
+        case 18..<22:
+            greeting = "good evening."
+        default:
+            greeting = "good night."
+        }
+        return greeting
+    }
+    
     private func addSubscriber() {
         viewModel.$quote
             .sink { [weak self] receivedQuote in
@@ -207,8 +230,7 @@ class HomeViewController: UIViewController {
     
     @objc func pushJournalVC() {
         if let quote = quote {
-            navigationController?.pushViewController(JournalViewController(quoteModel: quote),
-                                                     animated: true)
+            navigationController?.pushViewController(JournalViewController(quoteModel: quote), animated: true)
         }
     }
     
@@ -224,8 +246,44 @@ class HomeViewController: UIViewController {
     }
     
     @objc func testFunction() {
-        navigationController?.pushViewController(FavoriteQuotesListViewController(), animated: true)
-//        CoreDataManager.shared.deleteFavoriteQuotes()
+//        CoreDataManager.shared.fetchQuoteOfThe7Days()
+        viewModel.getQuoteOfTheDay(for: "")
+    }
+}
+
+extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSource,
+                              UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return viewModel.days.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath)
+    -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DayCell.identifier, for: indexPath)
+                as? DayCell else {
+            return UICollectionViewCell()
+        }
+        cell.configure(with: viewModel.days[indexPath.item], isToday: (indexPath.item == viewModel.days.endIndex - 1))
+        return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout,
+                        insetForSectionAt section: Int) -> UIEdgeInsets {
+        let cellWidth: CGFloat = 30
+        let cellHeight: CGFloat = 45
+        let cellSpacing: CGFloat = 16
+        let numberOfCells = CGFloat(7)
+        let totalCellWidth = cellWidth * numberOfCells
+        let totalSpacingWidth = cellSpacing * (numberOfCells - 1)
+        let horizontalInset = (collectionView.frame.width - (totalCellWidth + totalSpacingWidth)) / 2
+        let verticalInset = (collectionView.frame.height - cellHeight) / 2
+        return UIEdgeInsets(top: verticalInset, left: max(0, horizontalInset),
+                            bottom: verticalInset, right: max(0, horizontalInset))
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        daysView.daysCollectionView.deselectItem(at: indexPath, animated: true)
+        updateUI(for: viewModel.days[indexPath.item].date)
     }
 }
 
