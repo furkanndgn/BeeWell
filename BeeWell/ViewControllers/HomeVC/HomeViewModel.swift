@@ -27,17 +27,17 @@ class HomeViewModel: ObservableObject {
         return days
     }()
     
-    let quoteService: QuoteService
+    let quoteProvider: QuoteProvider
     private let dataManager: HomeScreenQuotesRepository
     let calendar = Calendar.current
     var cancellables: Set<AnyCancellable>
     @Published var quote: QuoteModel?
     @Published var isFavorited = false
     
-    init(quoteService: QuoteService = QuoteService(), subscription: Set<AnyCancellable> = Set<AnyCancellable>(),
+    init(quoteService: QuoteProvider = QuoteService(), subscription: Set<AnyCancellable> = Set<AnyCancellable>(),
          dataManager: HomeScreenQuotesRepository = CoreDataManager.shared) {
         self.dataManager = dataManager
-        self.quoteService = quoteService
+        self.quoteProvider = quoteService
         self.cancellables = subscription
     }
     
@@ -58,7 +58,7 @@ class HomeViewModel: ObservableObject {
         if let  quoteOfTheDay = dataManager.getQuoteOfTheDay(for: Date().toCSTTime()) {
             quote = quoteOfTheDay
         } else {
-            quoteService.getDailyQuote()
+            quoteProvider.getDailyQuote()
         }
     }
     
@@ -82,12 +82,9 @@ class HomeViewModel: ObservableObject {
     }
     
     func addSubscribers() {
-        quoteService.$dailyQuote
-            .sink { [weak self] dailyQuote in
-                self?.quote = dailyQuote
-                if let quote = dailyQuote {
-                    self?.dataManager.saveQuoteOfTheDay(quote)
-                }
+        quoteProvider.dailyQuotePublisher
+            .sink { [weak self] quote in
+                self?.quote = quote
             }
             .store(in: &cancellables)
     }

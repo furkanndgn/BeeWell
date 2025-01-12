@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 
-class NetworkManager {
+class NetworkManager: APIService {
     
     static let shared = NetworkManager()
     private let baseURL: String = "https://zenquotes.io/api/today"
@@ -45,15 +45,6 @@ class NetworkManager {
             throw NetworkError.serverError
         default:
             return output.data
-        }
-    }
-    
-    func handleCompletion(completion: Subscribers.Completion<Error>) {
-        switch completion {
-        case .finished:
-            break
-        case .failure(let error):
-            print(String(describing: error.localizedDescription))
         }
     }
 }
